@@ -14,8 +14,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class DriveGearbox implements SpeedController{
     CANJaguar front_jag, bottom_jag, top_jag;
-    int max_second_spinup_current = 30;
-    int rampRate = 24; // 0.5s spinup
+    float countsPerInch = (float) (1/((constants.DRIVE_WHEEL_DIAMETER*Math.PI)/360));
     public DriveGearbox(int front, int bottom, int top){
         try {
             front_jag = new CANJaguar(front);
@@ -23,16 +22,16 @@ public class DriveGearbox implements SpeedController{
             top_jag = new CANJaguar(top);
             front_jag.configEncoderCodesPerRev(360);
             front_jag.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            front_jag.setVoltageRampRate(rampRate);
-            bottom_jag.setVoltageRampRate(rampRate);
-            top_jag.setVoltageRampRate(rampRate);
+            front_jag.setVoltageRampRate(constants.DRIVE_MOTOR_RAMPUP_VOLTS_SECOND);
+            bottom_jag.setVoltageRampRate(constants.DRIVE_MOTOR_RAMPUP_VOLTS_SECOND);
+            top_jag.setVoltageRampRate(constants.DRIVE_MOTOR_RAMPUP_VOLTS_SECOND);
         } catch (CANTimeoutException ex) {
             //Hopefully we'll never hit here.
             ex.printStackTrace();
         }
     }
     void moveDistance(int inches){
-        float counts = (float) (inches*14.33121);
+        float counts = countsPerInch*inches;
         try {
             front_jag.changeControlMode(CANJaguar.ControlMode.kPosition);
             front_jag.setX(front_jag.getPosition() + Math.floor(counts));
@@ -42,19 +41,19 @@ public class DriveGearbox implements SpeedController{
         }
     }
     void startMotor2() throws CANTimeoutException{
-        if(front_jag.getOutputCurrent() <= max_second_spinup_current){
+        if(front_jag.getOutputCurrent() <= constants.DRIVE_MOTOR_CURRENT_CAP){
             bottom_jag.setX(front_jag.getX());
         }
     }
     void startMotor3() throws CANTimeoutException{
-        if(bottom_jag.getOutputCurrent() <= max_second_spinup_current && front_jag.getOutputCurrent() <= max_second_spinup_current){
+        if(bottom_jag.getOutputCurrent() <= constants.DRIVE_MOTOR_CURRENT_CAP && front_jag.getOutputCurrent() <= constants.DRIVE_MOTOR_CURRENT_CAP){
             top_jag.setX(front_jag.getX());
         }
     }
     void checkStall() throws CANTimeoutException{
-        if(front_jag.getSpeed() < 10){
+        if(front_jag.getSpeed() < constants.STALL_RPM_LESS){
             //We're going less than 10 RPM here. Something may be wrong.
-            if(front_jag.getOutputCurrent() > 25){
+            if(front_jag.getOutputCurrent() > constants.STALL_CURRENT_GREATER){
                 //We're shoving TWENTY-FIVE AMPS on this controller.
                 //This generally would indicate a stall fault.
                 System.err.println("ERR: STALL_FAULT");

@@ -5,7 +5,6 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.SpeedController;
 
 /**
  *

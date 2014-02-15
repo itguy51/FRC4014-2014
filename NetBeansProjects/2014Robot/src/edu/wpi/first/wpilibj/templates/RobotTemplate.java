@@ -10,7 +10,6 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,11 +29,11 @@ public class RobotTemplate extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-        rightDrive = new DriveGearbox(1, 2, 3);
-        leftDrive = new DriveGearbox(4, 5, 6);
+        rightDrive = new DriveGearbox(constants.RIGHT_FRONT_JAGUAR, constants.RIGHT_BOTTOM_JAGUAR, constants.RIGHT_TOP_JAGUAR);
+        leftDrive = new DriveGearbox(constants.LEFT_FRONT_JAGUAR, constants.LEFT_BOTTOM_JAGUAR, constants.LEFT_TOP_JAGUAR);
         drive = new CustomDriveBase(leftDrive, rightDrive);
-        driveStick = new Joystick(1);
-        operateStick = new Joystick(2);
+        driveStick = new Joystick(constants.DRIVER_JOYSTICK_PORT);
+        operateStick = new Joystick(constants.OPERATOR_JOYSTICK_PORT);
         
     }
 
