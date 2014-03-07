@@ -28,6 +28,7 @@ public class RobotTemplate extends IterativeRobot {
     SecretPlan sp;
     boolean hasRun = false;
     boolean hasAble = true;
+    boolean init = false;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -47,25 +48,86 @@ public class RobotTemplate extends IterativeRobot {
     /**
      * This function is called periodically during autonomous
      */
+    boolean auto_init = true;
+     boolean auto_init2 = true;
     public void autonomousPeriodic() {
-        //shooter.update();
-        System.out.println("DEBUG DATA AUTO");
-        System.out.println("POT READS");
-        System.out.println("Port 8: " + shooter.pot.getVoltage()*60);
-        System.out.println("DIGITAL READS");
-        System.out.println("Port 1: " + shooter.latchSwitch.isClosed());
-        System.out.println("Port 3: " + shooter.releaseSwitch.isClosed());
-        Timer.delay(0.5);
+       
+        /*
+            //autonomous 1: drive forward
+        if(auto_init){
+            drive.arcadeDrive(-1.0, 0.0);
+            Timer.delay(2);
+            drive.arcadeDrive(0.0, 0.0);
+            auto_init = false;
+        }
+        */
+        //Comment everything after this out if you don't want to fire a ball
         
+        //autonomous 2: drive forward, fire ball
+         if(auto_init)
+        {
+            shooter.setFireRoutine();//start cocking back
+            auto_init = false;
+        }
+        
+        shooter.shooterPeriodic();
+        
+        if(!shooter.fireRountine && auto_init2) //Ready to fire
+        {
+            //drive
+            drive.arcadeDrive(-1.0, 0.0);
+            Timer.delay(2);
+            drive.arcadeDrive(0.0, 0.0);
+            auto_init2 = false;
+            
+            
+            
+            shooter.setTilt(0.350);
+            Timer.delay(0.7);
+            //just so dangerous
+             shooter.setPullback(-0.8);
+            Timer.delay(1.5);
+            shooter.setPullback(0.0);
+        }
+        
+        
+            //while(true);
+        
+        
+    }
+    
+    public void autonomousInit()
+    {
+        auto_init = true;
+        auto_init2 = true;
+    }
+    
+    public void teleopInit()
+    {
+        shooter.setFireRoutine(); //cock back shooter
     }
 
     /**
      * This function is called periodically during operator control
      */
+    
     public void teleopPeriodic() {
+        /*
+        if(!init){
+          //  shooter.start();
+            shooter.shooterPeriodic();
+            init = true;
+        }
+        * */
+        
+        //just in case
+        auto_init = true;
+        auto_init2 = true;
+        
         //arms.print();
         //drive.arcadeDrive(driveStick, true);
-        drive.tankDrive(driveStick.getRawAxis(2), driveStick.getRawAxis(5));
+        drive.arcadeDrive(driveStick, true);
+        //drive.tankDrive(driveStick.getRawAxis(2)*Math.abs(driveStick.getRawAxis(2)), driveStick.getRawAxis(5)*Math.abs(driveStick.getRawAxis(5)));
         /*shooter.setPullback(driveStick.getX());
         //shooter.update();
         if(driveStick.getRawButton(1)){
@@ -125,10 +187,27 @@ public class RobotTemplate extends IterativeRobot {
         //System.out.println(shooter.latchSwitch.isClosed() + " - " + shooter.releaseSwitch.isClosed());
         */
         //Shooter Stuff Begin
+        if(driveStick.getRawButton(1)){
+            /*System.out.println("Fire");
+            shooter.fire();
+            System.out.println("Fire End, Go latch");
+            shooter.setPullback(1.0);
+            Timer.delay(1.5);
+            System.out.println("Latching");
+            while(shooter.latch());
+            System.out.println("Latching End, pull back");
+            shooter.setPullback(-1.0);
+            Timer.delay(2);
+            System.out.println("Arming");
+            while(shooter.pullback());
+            System.out.println("Arming end");*/
+            shooter.setFireRoutine();
+            
+        }
         if(operateStick.getRawButton(9)){
             shooter.setTilt(0.420); //Slightly Up Flat
         }
-        if(operateStick.getRawButton(2)){
+        if(operateStick.getRawButton(8)){
             shooter.setTilt(0.350); //Shooting Pos.
         }
         if(operateStick.getRawButton(11)){
@@ -137,7 +216,7 @@ public class RobotTemplate extends IterativeRobot {
         if(operateStick.getRawButton(12)){
             shooter.setTilt(shooter.getTilt() - 0.01); //Go Down a nudge
         }
-        if(operateStick.getRawButton(8)){
+        if(operateStick.getRawButton(2)){
             shooter.setTilt(0.620); //Down
         }
         /*if(operateStick.getRawButton(7)){
@@ -146,8 +225,10 @@ public class RobotTemplate extends IterativeRobot {
         */
         //Shooter Stuff End
         //Launcher Begin
-        shooter.printOut();
+        //shooter.printOut();
         if(operateStick.getRawButton(1)){
+            shooter.setFireRoutine();
+            /*
             shooter.setPullback(1.0);
             Timer.delay(1.5);
             System.out.println("Latching");
@@ -161,13 +242,20 @@ public class RobotTemplate extends IterativeRobot {
             System.out.println("Arming");
             while(shooter.pullback());
             System.out.println("Arming end");
+            * */
+            
         }
-        if(operateStick.getRawButton(4)){
+        shooter.shooterPeriodic();//IMPORTANT!!!
+        
+        
+    
+        if(operateStick.getRawButton(6)){
             shooter.setPullback(0.6);
-        }else if(operateStick.getRawButton(6)){
-            shooter.setPullback(-0.6);
+        }else if(operateStick.getRawButton(4)){
+            shooter.setPullback(-1.0);
         }else{
-            shooter.setPullback(0.0);
+            if(!shooter.fireRountine)
+                shooter.setPullback(0.0);
         }
         //Launcher End
         //Arms Begin
@@ -181,10 +269,10 @@ public class RobotTemplate extends IterativeRobot {
             arms.setAngle(0.740); //Up
             
         }
-        if(operateStick.getRawButton(2)){
+/*        if(operateStick.getRawButton(2)){
             shooter.regainControl();
-            arms.setAngle(0.000); //Down
-        }
+            arms.setAngle(0.050); //Down
+        }*/
         if(operateStick.getY() > 0.2 || operateStick.getY() < -0.2){
             arms.setBottomRollers(operateStick.getY());
         }else{
