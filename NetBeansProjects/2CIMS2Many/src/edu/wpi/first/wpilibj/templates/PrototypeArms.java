@@ -37,7 +37,7 @@ public class PrototypeArms {
             rotate.setPositionReference(CANJaguar.PositionReference.kPotentiometer);
                     
             rotate.configPotentiometerTurns(1);
-            rotate.setPID(140.000, 0.090, 2.400);
+            rotate.setPID(170.000, 0.090, 2.400); //P used to be 140
             rotate.configNeutralMode(CANJaguar.NeutralMode.kBrake);
             rotate.enableControl(0.000);
             

@@ -20,11 +20,11 @@ public class DriveGearbox implements SpeedController{
         try {
             top = new CANJaguar(topCh);
             bottom = new CANJaguar(bottomCh);
-            top.configNeutralMode(CANJaguar.NeutralMode.kCoast);
-            bottom.configNeutralMode(CANJaguar.NeutralMode.kCoast);
-            top.setVoltageRampRate(24);
-            bottom.setVoltageRampRate(12);
-            top.configEncoderCodesPerRev(360);
+            top.configNeutralMode(CANJaguar.NeutralMode.kBrake);
+            bottom.configNeutralMode(CANJaguar.NeutralMode.kBrake);
+            top.setVoltageRampRate(36);
+            bottom.setVoltageRampRate(36);
+            //top.configEncoderCodesPerRev(360);
             
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -35,6 +35,7 @@ public class DriveGearbox implements SpeedController{
     }
 
     public void set(double d, byte b) {
+        d *= 0.85;
         try {
             currentSpeed = d;
             bottom.setX(d);

@@ -8,8 +8,10 @@
 package edu.wpi.first.wpilibj.templates;
 
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
@@ -20,15 +22,17 @@ import edu.wpi.first.wpilibj.Timer;
  * directory.
  */
 public class RobotTemplate extends IterativeRobot {
-    CustomDriveBase drive;
+    RobotDrive drive;
     DriveGearbox leftDrive, rightDrive;
     Joystick driveStick, operateStick;
     Shooter2 shooter;
     PrototypeArms arms;
-    SecretPlan sp;
+    
     boolean hasRun = false;
     boolean hasAble = true;
     boolean init = false;
+    boolean auto_init = true;
+    boolean auto = true;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -36,72 +40,42 @@ public class RobotTemplate extends IterativeRobot {
     public void robotInit() { 
         rightDrive = new DriveGearbox(constants.RIGHT_BOTTOM_JAGUAR, constants.RIGHT_TOP_JAGUAR);
         leftDrive = new DriveGearbox(constants.LEFT_BOTTOM_JAGUAR, constants.LEFT_TOP_JAGUAR);
-        drive = new CustomDriveBase(leftDrive, rightDrive);
+        //drive = new CustomDriveBase(leftDrive, rightDrive);
+        drive = new RobotDrive(leftDrive, rightDrive);
         driveStick = new Joystick(constants.DRIVER_JOYSTICK_PORT);
         operateStick = new Joystick(constants.OPERATOR_JOYSTICK_PORT);
         //sp = new SecretPlan(constants.SECRET_PLAN_LEFT, constants.SECRET_PLAN_RIGHT, constants.SECRET_PLAN_ROLLER);
         shooter = new Shooter2(constants.PULLBACK_MOTOR, constants.ROTATION_MOTOR, constants.POT_CHANNEL, constants.LATCH_BLOCKED, constants.FIRE_BLOCKED);
         arms = new PrototypeArms(constants.PROTOTYPE_ARMS_CONTROL, constants.PROTOTYPE_ARMS_ROLLER, constants.PROTOTYPE_ARMS_JAGUAR);
         drive.setExpiration(50000);
+        auto = true;
     }
 
     /**
      * This function is called periodically during autonomous
      */
-    boolean auto_init = true;
+   //boolean auto_init = true;
      boolean auto_init2 = true;
     public void autonomousPeriodic() {
-       
-        /*
-            //autonomous 1: drive forward
-        if(auto_init){
-            drive.arcadeDrive(-1.0, 0.0);
-            Timer.delay(2);
-            drive.arcadeDrive(0.0, 0.0);
-            auto_init = false;
-        }
-        */
-        //Comment everything after this out if you don't want to fire a ball
+       double time = DriverStation.getInstance().getMatchTime();
         
-        //autonomous 2: drive forward, fire ball
-         if(auto_init)
-        {
-            shooter.setFireRoutine();//start cocking back
-            auto_init = false;
-        }
-        
-        shooter.shooterPeriodic();
-        
-        if(!shooter.fireRountine && auto_init2) //Ready to fire
-        {
-            //drive
-            drive.arcadeDrive(-1.0, 0.0);
-            Timer.delay(2);
-            drive.arcadeDrive(0.0, 0.0);
-            auto_init2 = false;
+        if(time > 7.5 && time < 9.0){
+            drive.setLeftRightMotorOutputs(-1.0, -1.0);
+//            Timer.delay(1.2);
             
-            
-            
-            shooter.setTilt(0.350);
-            Timer.delay(0.7);
-            //just so dangerous
-             shooter.setPullback(-0.8);
-            Timer.delay(1.5);
-            shooter.setPullback(0.0);
+//            auto = false;
+        }else{
+            drive.setLeftRightMotorOutputs(0,0);
         }
-        
-        
-            //while(true);
-        
         
     }
     
-    public void autonomousInit()
+   /*public void autonomousInit()
     {
         auto_init = true;
         auto_init2 = true;
     }
-    
+    */
     public void teleopInit()
     {
         shooter.setFireRoutine(); //cock back shooter
@@ -121,8 +95,8 @@ public class RobotTemplate extends IterativeRobot {
         * */
         
         //just in case
-        auto_init = true;
-        auto_init2 = true;
+        auto = true;
+        //auto_init2 = true;
         
         //arms.print();
         //drive.arcadeDrive(driveStick, true);
@@ -208,14 +182,17 @@ public class RobotTemplate extends IterativeRobot {
             shooter.setTilt(0.420); //Slightly Up Flat
         }
         if(operateStick.getRawButton(8)){
-            shooter.setTilt(0.350); //Shooting Pos.
+            shooter.setTilt(0.345); //Shooting Pos.
         }
         if(operateStick.getRawButton(11)){
+            shooter.setTilt(0.385); //Shooting Pos.
+        }
+        /*if(operateStick.getRawButton(11)){
             shooter.setTilt(shooter.getTilt() + 0.01); //Go Up a nudge
         }
         if(operateStick.getRawButton(12)){
             shooter.setTilt(shooter.getTilt() - 0.01); //Go Down a nudge
-        }
+        }*/
         if(operateStick.getRawButton(2)){
             shooter.setTilt(0.620); //Down
         }

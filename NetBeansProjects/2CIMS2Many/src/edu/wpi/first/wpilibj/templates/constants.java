@@ -29,6 +29,9 @@ public class constants {
     static int RIGHT_TOP_JAGUAR = 1;
     static int RIGHT_BOTTOM_JAGUAR = 2;
     
+    
+    
+    static double NEW_PID_CONST =   150;
     //Motor Connections (PWM)
     
     
@@ -55,10 +58,6 @@ public class constants {
     static int PULLBACK_MOTOR = 2;
     static int ROTATION_MOTOR = 6;
     
-    //Secret Plan
-    static int SECRET_PLAN_LEFT = 4;
-    static int SECRET_PLAN_RIGHT = 5;
-    static int SECRET_PLAN_ROLLER = 6;
     
     //Arm Stuff
     static int PROTOTYPE_ARMS_CONTROL = 8;
